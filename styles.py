@@ -1,382 +1,501 @@
-"""Styling constants for the digital twin Gradio app."""
+"""Styling constants for the digital twin Gradio app.
 
+The stylesheet below is scoped almost entirely to the elem_id/elem_classes
+values set explicitly on our own gr.Blocks layout (#app-shell and its
+descendants), not to Gradio's internal, version-specific DOM classes.
+
+The one deliberate exception is the chat bubble styling under
+`#chat-window .message-row ...`: Gradio's Chatbot component owns that
+markup internally and doesn't expose per-bubble elem_ids, so styling the
+conversation at all requires targeting the class names it renders. Those
+selectors were verified directly against the installed Gradio 6.20
+frontend bundle rather than guessed.
+"""
+
+CHARCOAL = "#2a2d3a"
+CHARCOAL_MUTED = "#6b7086"
 GOLD = "#ecad0a"
-BLUE = "#209dd7"
-PURPLE = "#753991"
+BLUE = "#4d8fc7"
+WHITE = "#ffffff"
 
 EXAMPLES = [
     "Tell me about your background and experience.",
-    "What kinds of projects are you working on now?",
+    "What kinds of projects are you working on?",
     "What are your strongest technical skills?",
-    "How can I get in touch with you?",
 ]
 
 CSS = """
 :root {
+  --twin-charcoal: #2a2d3a;
+  --twin-charcoal-muted: #6b7086;
   --twin-gold: #ecad0a;
-  --twin-blue: #209dd7;
-  --twin-purple: #753991;
-  --twin-bg: #0d0d10;
-  --twin-surface: #16161b;
-  --twin-surface-2: #1c1c22;
-  --twin-border: #2a2a32;
-  --twin-border-strong: #3a3a44;
-  --twin-text: #ececef;
-  --twin-muted: #8c8c95;
+  --twin-gold-soft: #ffcf4d;
+  --twin-blue: #4d8fc7;
+  --twin-page-bg: #eef0f4;
+  --twin-shell-bg: #fbfaf9;
+  --twin-card-bg: #ffffff;
+  --twin-border: #e4e2ec;
+  --twin-lavender: rgba(190, 175, 235, 0.32);
+  --twin-paleblue: rgba(170, 205, 235, 0.26);
 }
 
-/* Light mode: Gradio adds `.dark` to <body> when dark; absence = light.
-   Only the neutral palette flips — gold/blue/purple accents stay identical. */
-body:not(.dark) {
-  --twin-bg: #f4f4f6;
-  --twin-surface: #ffffff;
-  --twin-surface-2: #ededf0;
-  --twin-border: #dcdce2;
-  --twin-border-strong: #b8b8c0;
-  --twin-text: #1a1a20;
-  --twin-muted: #6a6a72;
+/* ---------- Page canvas ----------
+   Gradio's own root wrapper (.gradio-container) sits *above* #app-shell in
+   the DOM, so painting the muted page background and centering the shell
+   necessarily happens here rather than "inside" #app-shell. Nothing else
+   about Gradio's internals is targeted by this rule. */
+html, body {
+  margin: 0 !important;
+  background: var(--twin-page-bg) !important;
 }
-
+.gradio-container {
+  background: var(--twin-page-bg) !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  overflow-x: hidden !important;
+}
+/* Gradio's own inner wrapper caps content at 1536px and adds 32px side
+   padding, which stopped the shell from filling wide screens. */
+.gradio-container .main {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+}
 footer, .built-with, .show-api, .api-docs { display: none !important; }
 
-html, body, gradio-app { background: var(--twin-bg) !important; }
-
-/* ---------- Stable layout ---------- */
-.gradio-container {
-  background: var(--twin-bg) !important;
-  color: var(--twin-text) !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-  width: 100% !important;
-  max-width: 880px !important;
-  min-width: 0 !important;
-  margin: 0 auto !important;
-  padding: 32px 24px 48px !important;
-}
-.gradio-container .main, .gradio-container .contain, .gradio-container .wrap {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-}
-.gradio-container * { min-width: 0; }
-
-/* ---------- Title ---------- */
-.gradio-container h1 {
-  color: var(--twin-text) !important;
-  font-size: 26px !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.02em !important;
-  border-left: 3px solid var(--twin-gold);
-  padding-left: 12px !important;
-  margin: 4px 0 8px !important;
-  text-align: left !important;
-}
-
-/* ---------- Sharp corners on structural pieces ---------- */
-.chatbot, .chatbot *, .block, .form,
-button, input, textarea,
-.examples button {
-  border-radius: 0 !important;
-}
-
-/* ---------- Block surfaces ---------- */
-.block, .form { background: transparent !important; box-shadow: none !important; }
-
-/* ---------- Hide the Chatbot label / header strip ---------- */
-.chatbot > .block-label,
-.chatbot > label,
-.chatbot .label-wrap,
-.chatbot .block-label,
-.chatbot > .label-container {
-  display: none !important;
-}
-
-/* ---------- Chatbot frame ---------- */
-.chatbot, .chatbot.block {
-  background: var(--twin-surface) !important;
-  border: 1px solid var(--twin-border) !important;
-  min-height: 460px !important;
+/* While a response is generating, Gradio outlines each updating component
+   with a 2px blue "status tracker" border. Two of them appear at different
+   insets (around the chat window and around the textbox), which reads as
+   misaligned boxes flashing on screen. The chat's own typing indicator
+   already communicates progress, so drop this chrome. */
+#app-shell [data-testid="status-tracker"] {
+  border: 0 !important;
   box-shadow: none !important;
+  background: transparent !important;
 }
-.chatbot .placeholder, .chatbot .placeholder * { color: var(--twin-muted) !important; }
 
-/* ---------- Message rows: strip parent backgrounds ---------- */
-.message-row,
-.message-row > div,
-.message-row .role,
-.message-wrap, .bubble-wrap {
+/* ---------- Force a light appearance even in dark mode ----------
+   Gradio adds `.dark` to <body> from the OS/browser colour-scheme setting
+   and flips its own theme variables to dark values. The Chatbot internals
+   read those variables, which is what painted the conversation black and
+   turned bold/heading text near-white. Rather than chase each element,
+   re-point Gradio's variables at our light palette.
+
+   Gradio declares these on `:root.dark, :root .dark` (specificity 0,2,0),
+   which outranks a plain `body.dark` (0,1,1) — the `!important` flags are
+   what make these overrides actually win. The dark greys are also reached
+   indirectly through --neutral-*, so those are remapped too. */
+body.dark {
+  --background-fill-primary: #fbfaf9 !important;
+  --background-fill-secondary: #fbfaf9 !important;
+  --block-background-fill: #ffffff !important;
+  --block-border-color: #e4e2ec !important;
+  --border-color-primary: #e4e2ec !important;
+  --border-color-accent: #4d8fc7 !important;
+  --border-color-accent-subdued: #4d8fc7 !important;
+  --body-background-fill: #eef0f4 !important;
+  --accordion-text-color: #2a2d3a !important;
+  --body-text-color: #2a2d3a !important;
+  --body-text-color-subdued: #6b7086 !important;
+  --block-label-background-fill: #ffffff !important;
+  --block-label-text-color: #2a2d3a !important;
+  --block-title-text-color: #2a2d3a !important;
+  --block-info-text-color: #6b7086 !important;
+  --link-text-color: #4d8fc7 !important;
+  --input-background-fill: #ffffff !important;
+  --button-secondary-background-fill: #ffffff !important;
+  --button-secondary-text-color: #2a2d3a !important;
+  --neutral-950: #ffffff !important;
+  --neutral-900: #fbfaf9 !important;
+  --neutral-800: #ffffff !important;
+  --neutral-700: #e4e2ec !important;
+  --neutral-600: #c9cbd8 !important;
+  color-scheme: light;
+}
+
+/* ---------- Application shell ---------- */
+#app-shell {
+  box-sizing: border-box;
+  max-width: none;
+  width: calc(100% - 48px);
+  margin: 24px auto !important;
+  min-height: calc(100vh - 48px);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 30px 80px -40px rgba(30, 20, 60, 0.22);
+  background:
+    radial-gradient(ellipse 720px 380px at 50% 100%, var(--twin-blue), transparent 70%),
+    # radial-gradient(ellipse 520px 300px at 82% 100%, var(--twin-paleblue), transparent 65%),
+    var(--twin-shell-bg);
+  overflow: hidden;
+  display: flex !important;
+  flex-direction: column !important;
+  color: var(--twin-charcoal);
+}
+#app-shell * { box-sizing: border-box; min-width: 0; }
+
+/* ---------- Topbar ---------- */
+#topbar {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px 32px !important;
+  gap: 16px;
+}
+/* Single centred brand: monogram stacked above the name. */
+#brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 0 auto;
+}
+#brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--twin-gold), var(--twin-blue));
+}
+#brand-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--twin-charcoal);
+}
+
+/* ---------- Content area (hero / prompts / chat) ---------- */
+#content-area {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 24px;
+}
+
+/* ---------- Hero ---------- */
+#hero-section {
+  flex: 0 0 auto !important;
+  text-align: center;
+  margin: clamp(24px, 6vh, 64px) auto 0;
+  max-width: 640px;
+}
+#hero-greeting {
+  margin: 0 0 60px 0;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--twin-charcoal-muted);
+}
+#hero-headline {
+  margin: 0 0 30px 0;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--twin-charcoal);
+}
+#hero-subtext {
+  margin: 0 auto;
+  max-width: 500px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--twin-charcoal-muted);
+}
+
+/* ---------- Quick prompts ---------- */
+/* `margin-top: auto` inside the flex column pushes the cards down so they
+   sit directly above the composer instead of floating under the hero. */
+#quick-prompts {
+  flex: 0 0 auto !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  /* Gradio's .row sets align-items: flex-start, which stops the grid items
+     from stretching — cards with fewer text lines ended up shorter. */
+  align-items: stretch !important;
+  gap: 16px !important;
+  max-width: 920px;
+  width: 100%;
+  margin: auto auto 0 !important;
+}
+/* Gradio hides a component by adding its `hide` class (display: none).
+   Our `display: grid !important` above outranked that, so the cards stayed
+   on screen after the first message — re-assert the hidden state here. */
+#quick-prompts.hide { display: none !important; }
+.prompt-card {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid var(--twin-border) !important;
+  border-radius: 16px !important;
+  padding: 18px 20px !important;
+  min-height: 96px !important;
+  height: 100% !important;
+  text-align: left !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  white-space: normal !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  color: var(--twin-charcoal-muted) !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+/* Decorative marker above the label, mirroring the reference layout. The
+   text lives in the button label so screen readers still read it normally. */
+.prompt-card::before {
+  content: '\\25C6';
+  font-size: 11px;
+  line-height: 1;
+  color: var(--twin-gold);
+}
+.prompt-card:hover {
+  border-color: var(--twin-blue) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -18px rgba(30, 20, 60, 0.35) !important;
+}
+.prompt-card:focus-visible {
+  outline: 2px solid var(--twin-blue) !important;
+  outline-offset: 2px;
+}
+
+/* ---------- Chat section ---------- */
+/* The shell fills the viewport, so without a cap the conversation would
+   strand against the far-left edge on wide screens. Keep it as a centred,
+   readable column roughly aligned with the composer. */
+#chat-section {
+  flex: 1 1 auto !important;
+  min-height: 0;
+  width: 100%;
+  max-width: 1000px;
+  margin: 12px auto 0 !important;
+  animation: twin-fade-in 0.2s ease;
+}
+#chat-window {
+  height: 100% !important;
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
 }
+#chat-window > .label-wrap,
+#chat-window > .block-label { display: none !important; }
 
-/* ---------- Reset borders on every bubble variant first ---------- */
-.message-row .message,
-.message-row .message-bubble,
-.message-row .bubble {
+/* Bubble styling: the one place we necessarily rely on Gradio's Chatbot
+   internals (see module docstring). Scoped under #chat-window. */
+
+/* Gradio wraps each bubble in its own `.message` element that carries a
+   border, fill and 6px radius of its own — nested inside our styled
+   `.message-content`, that read as a double outline around every message.
+   Strip the outer layer so only our bubble is visible. */
+#chat-window .message-row .message {
+  background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
-  padding: 6px 10px !important;
+  padding: 0 !important;
+}
+#chat-window .message-row .message-content {
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 11px 16px !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+#chat-window .message-row.user-row .message-content {
+  background: linear-gradient(135deg, var(--twin-blue), #3f7dc0) !important;
+  color: #ffffff !important;
+  border-radius: 16px 16px 4px 16px !important;
+}
+#chat-window .message-row.bot-row .message-content {
+  background: var(--twin-card-bg) !important;
+  border: 1px solid var(--twin-border) !important;
+  border-radius: 16px 16px 16px 4px !important;
 }
 
-/* ---------- Bubble backgrounds (broad to cover Gradio variants) ---------- */
-.message-row.user-row .message,
-.message-row.user-row .message-bubble,
-.message-row.user-row .bubble,
-.message-row[data-role="user"] .message,
-.message-row[data-role="user"] .message-bubble {
-  background: var(--twin-blue) !important;
+/* Typing indicator. The pending assistant turn renders an empty markdown
+   span; hang three animated dots off it so there's visible feedback while
+   the reply is being generated (Gradio's own progress chrome is hidden
+   above because it drew misaligned blue boxes). */
+#chat-window .message-row.bot-row .message-content .md:empty::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 5px 24px 5px 0;
+  border-radius: 50%;
+  background: var(--twin-charcoal-muted);
+  box-shadow: 12px 0 var(--twin-charcoal-muted), 24px 0 var(--twin-charcoal-muted);
+  animation: twin-typing 1.1s ease-in-out infinite;
+}
+@keyframes twin-typing {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* Gradio's theme colours headings/bold/list items explicitly, so `inherit`
+   on the bubble alone isn't enough — every descendant has to be forced or
+   they keep the theme's own (near-white) text colour. */
+#chat-window .message-row.bot-row .message-content,
+#chat-window .message-row.bot-row .message-content * {
+  color: var(--twin-charcoal) !important;
+}
+#chat-window .message-row.user-row .message-content,
+#chat-window .message-row.user-row .message-content * {
   color: #ffffff !important;
 }
 
-.message-row.bot-row .message,
-.message-row.bot-row .message-bubble,
-.message-row.bot-row .bubble,
-.message-row[data-role="assistant"] .message,
-.message-row[data-role="assistant"] .message-bubble {
-  background: var(--twin-surface-2) !important;
-  color: var(--twin-text) !important;
+#chat-window .message-row .message-content p { margin: 0 0 8px !important; }
+#chat-window .message-row .message-content p:last-child { margin-bottom: 0 !important; }
+#chat-window .message-row .message-content ul,
+#chat-window .message-row .message-content ol { margin: 0 0 8px !important; }
+#chat-window .message-row .message-content h1,
+#chat-window .message-row .message-content h2,
+#chat-window .message-row .message-content h3,
+#chat-window .message-row .message-content h4 {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  margin: 14px 0 6px !important;
 }
-
-/* ---------- Purple stripe ----------
-   Apply to every common bubble class for assistant rows (we don't know which
-   one the running Gradio uses), then suppress on any *nested* instance so the
-   stripe lands on the outermost matching element only — exactly one stripe. */
-.message-row.bot-row .message,
-.message-row.bot-row .bubble,
-.message-row.bot-row .message-bubble,
-.message-row[data-role="assistant"] .message,
-.message-row[data-role="assistant"] .bubble,
-.message-row[data-role="assistant"] .message-bubble {
-  border-left: 2px solid var(--twin-purple) !important;
-}
-
-.message-row.bot-row .message .message,
-.message-row.bot-row .message .bubble,
-.message-row.bot-row .message .message-bubble,
-.message-row.bot-row .bubble .message,
-.message-row.bot-row .bubble .bubble,
-.message-row.bot-row .bubble .message-bubble,
-.message-row.bot-row .message-bubble .message,
-.message-row.bot-row .message-bubble .bubble,
-.message-row.bot-row .message-bubble .message-bubble,
-.message-row[data-role="assistant"] .message .message,
-.message-row[data-role="assistant"] .message .bubble,
-.message-row[data-role="assistant"] .message .message-bubble,
-.message-row[data-role="assistant"] .bubble .message,
-.message-row[data-role="assistant"] .bubble .bubble,
-.message-row[data-role="assistant"] .bubble .message-bubble,
-.message-row[data-role="assistant"] .message-bubble .message,
-.message-row[data-role="assistant"] .message-bubble .bubble,
-.message-row[data-role="assistant"] .message-bubble .message-bubble {
-  border-left: 0 !important;
-}
-
-/* ---------- Uniform font size in bubbles ----------
-   The "first paragraph different size" was caused by a leaky `.prose p:first-of-type`
-   selector. Force every paragraph in a bubble to the same size. */
-.message-row .message,
-.message-row .message-bubble,
-.message-row .bubble {
-  font-size: 14px !important;
-  line-height: 1.55 !important;
-}
-.message-row .message p,
-.message-row .message-bubble p,
-.message-row .bubble p,
-.message-row .prose p {
-  font-size: 14px !important;
-  line-height: 1.55 !important;
-  margin: 0 0 8px !important;
-  color: inherit !important;
-}
-.message-row .message p:last-child,
-.message-row .message-bubble p:last-child,
-.message-row .bubble p:last-child,
-.message-row .prose p:last-child { margin-bottom: 0 !important; }
-
-/* Strip stray internal borders/backgrounds from anything inside a bubble */
-.message-row .message *,
-.message-row .message-bubble *,
-.message-row .bubble * {
-  background: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-  color: inherit !important;
-}
-.message-row .message a,
-.message-row .message-bubble a {
-  color: var(--twin-gold) !important;
+#chat-window .message-row.bot-row .message-content a {
+  color: var(--twin-blue) !important;
   text-decoration: underline;
 }
 
-/* ---------- Input row alignment ---------- */
-.input-row,
-.gr-input-row,
-.chat-input-row,
-form[class*="input"] { align-items: stretch !important; }
-
-textarea, input[type="text"] {
-  background: var(--twin-surface) !important;
-  border: 1px solid var(--twin-border) !important;
-  color: var(--twin-text) !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 14px !important;
-  padding: 12px 14px !important;
-  line-height: 1.4 !important;
-  min-height: 48px !important;
-}
-textarea:focus, input[type="text"]:focus {
-  border-color: var(--twin-gold) !important;
-  outline: none !important;
-  box-shadow: 0 0 0 1px var(--twin-gold) !important;
-}
-textarea::placeholder, input::placeholder { color: var(--twin-muted) !important; }
-
-/* ---------- Buttons ---------- */
-button {
-  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace !important;
-  letter-spacing: 0.12em !important;
-  text-transform: uppercase !important;
-  font-size: 11px !important;
-  font-weight: 600 !important;
-  border: 1px solid var(--twin-border) !important;
-  background: transparent !important;
-  color: var(--twin-text) !important;
-  padding: 0 16px !important;
-  min-height: 48px !important;
-  align-self: stretch !important;
-  display: inline-flex !important;
+/* ---------- Composer ---------- */
+#message-composer {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
   align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  gap: 10px;
+  /* Matches #quick-prompts so the input lines up with the three cards. */
+  max-width: 920px;
+  width: calc(100% - 48px);
+  margin: 20px auto 28px !important;
+  padding: 6px 10px 6px 18px !important;
+  background: var(--twin-card-bg) !important;
+  border: 1px solid #ffffff !important;
+  border-radius: 999px !important;
+  box-shadow: 0 10px 30px -16px rgba(30, 20, 60, 0.25);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-button:hover { border-color: var(--twin-gold) !important; color: var(--twin-gold) !important; }
-
-button.primary,
-button[variant="primary"],
-button.submit,
-button.submit-button,
-.submit-button,
-button.lg.primary {
-  background: var(--twin-gold) !important;
-  border: 1px solid var(--twin-gold) !important;
-  color: #111111 !important;
-  min-height: 48px !important;
-  align-self: stretch !important;
-  padding: 0 14px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-button.primary:hover,
-button.submit:hover,
-.submit-button:hover,
-button.lg.primary:hover {
-  background: #ffc320 !important;
-  border-color: #ffc320 !important;
-  color: #111111 !important;
-}
-
-/* ---------- Submit-button icon: center vertically and size correctly ---------- */
-button.submit svg,
-button.submit-button svg,
-.submit-button svg,
-button.primary svg,
-button[variant="primary"] svg {
-  width: 18px !important;
-  height: 18px !important;
-  margin: 0 auto !important;
-  display: block !important;
-  align-self: center !important;
-  color: #111111 !important;
-  fill: currentColor !important;
-  stroke: currentColor !important;
-}
-
-/* ---------- Examples ---------- */
-.examples, .examples-holder, [data-testid="examples"] {
-  background: transparent !important;
-  padding: 0 !important;
-  margin-top: 14px !important;
-}
-.examples table, .examples-table { background: transparent !important; border: 0 !important; }
-.examples button, .example, .examples td button, [data-testid="examples"] button {
-  background: var(--twin-surface) !important;
-  border: 1px solid var(--twin-border) !important;
-  color: var(--twin-text) !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 400 !important;
-  padding: 10px 14px !important;
-  text-align: left !important;
-  min-height: 0 !important;
-  align-self: auto !important;
-  display: inline-block !important;
-}
-.examples button:hover, .example:hover, [data-testid="examples"] button:hover {
+#message-composer:focus-within {
   border-color: var(--twin-blue) !important;
-  color: var(--twin-blue) !important;
-  background: var(--twin-surface) !important;
+  box-shadow: 0 0 0 3px rgba(77, 143, 199, 0.16);
 }
-
-/* ---------- Icon buttons (clear, retry, copy) ---------- */
-.icon-button, .chatbot .icon-button {
-  color: var(--twin-muted) !important;
+/* Gradio wraps every component (including our plain gr.HTML icon and the
+   Textbox) in a generically-themed ".block" element with its own border/
+   background/padding. Scoped to the composer, strip that chrome so only
+   our pill (#message-composer itself) reads as the visible container. */
+#message-composer .block {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+}
+#message-composer > div { flex-shrink: 0; }
+#message-input { flex: 1 1 auto !important; }
+#message-input label { padding: 0 !important; }
+#message-input textarea {
   background: transparent !important;
   border: 0 !important;
+  box-shadow: none !important;
+  color: var(--twin-charcoal) !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 15px !important;
+  padding: 10px 4px 10px 10px !important;
   min-height: 0 !important;
-  align-self: auto !important;
-  padding: 4px !important;
+  resize: none !important;
+}
+#message-input textarea::placeholder { color: var(--twin-charcoal-muted) !important; }
+#message-input textarea:focus { outline: none !important; box-shadow: none !important; }
+
+#send-button {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, var(--twin-gold), var(--twin-gold-soft)) !important;
+  color: var(--twin-charcoal) !important;
+  font-size: 0 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.15s ease;
 }
-.icon-button:hover, .chatbot .icon-button:hover { color: var(--twin-gold) !important; }
+#send-button::after {
+  content: '\\2192';
+  font-size: 16px;
+  line-height: 1;
+}
+#send-button:hover { filter: brightness(1.06); transform: translateY(-1px); }
+#send-button:focus-visible {
+  outline: 2px solid var(--twin-blue) !important;
+  outline-offset: 2px;
+}
 
-/* ---------- Scrollbar ---------- */
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: var(--twin-bg); }
-::-webkit-scrollbar-thumb { background: var(--twin-border-strong); }
-::-webkit-scrollbar-thumb:hover { background: var(--twin-purple); }
+/* ---------- Focus states (non-color cue: visible outline everywhere) ---------- */
+#app-shell button:focus-visible,
+#app-shell textarea:focus-visible {
+  outline: 2px solid var(--twin-blue);
+  outline-offset: 2px;
+}
 
-/* ---------- Selection ---------- */
-::selection { background: var(--twin-gold); color: #111111; }
+/* ---------- Motion ---------- */
+@keyframes twin-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #app-shell, #app-shell * { animation: none !important; transition: none !important; }
+}
 
-/* ---------- Mobile ---------- */
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  #quick-prompts { grid-template-columns: 1fr !important; }
+}
 @media (max-width: 640px) {
-  .gradio-container { padding: 22px 14px 36px !important; }
-  .gradio-container h1 { font-size: 22px !important; }
+  #app-shell { width: calc(100% - 24px); margin: 12px auto !important; border-radius: 20px; }
+  #topbar { padding: 18px 20px !important; }
+  #content-area { padding: 0 16px; }
+  #hero-headline { font-size: 26px !important; }
+  /* Match #content-area's 16px side padding so the composer stays flush
+     with the prompt cards above it. The placeholder can't fit on one line
+     at this width, so let the pill grow to two lines rather than clipping
+     it, and soften the radius so it still reads as intentional. */
+  #message-composer {
+    width: calc(100% - 32px);
+    padding: 8px 8px 8px 14px !important;
+    border-radius: 24px !important;
+  }
+  #message-input textarea {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    min-height: 42px !important;
+  }
 }
 """
 
-JS = """
+FOCUS_JS = """
 () => {
-  document.title = 'Digital Twin';
-
-  const focusInput = () => {
-    const areas = document.querySelectorAll('textarea');
-    if (areas.length) areas[areas.length - 1].focus();
-  };
-  setTimeout(focusInput, 300);
-
-  // Re-focus the message field whenever Gradio re-enables it
-  // (i.e. after the assistant finishes responding).
-  const watchTextarea = (area) => {
-    if (area.dataset.twinWatched) return;
-    area.dataset.twinWatched = '1';
-    let wasDisabled = area.disabled || area.readOnly;
-    new MutationObserver(() => {
-      const isDisabled = area.disabled || area.readOnly;
-      if (wasDisabled && !isDisabled) area.focus();
-      wasDisabled = isDisabled;
-    }).observe(area, { attributes: true, attributeFilter: ['disabled', 'readonly'] });
-  };
-
-  const scan = () => document.querySelectorAll('textarea').forEach(watchTextarea);
-  setTimeout(scan, 500);
-  new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+  const el = document.querySelector('#message-input textarea');
+  if (el) el.focus();
 }
 """

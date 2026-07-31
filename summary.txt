@@ -262,22 +262,6 @@ Cloudinary, Resend, Vercel, and PostHog.
 Do not compare or describe the product using the names of unrelated
 marketplace or ticketing companies.
 
-### HaitiBillboard AI Layer
-
-HaitiBillboard contains Haitian music-related data stored in PostgreSQL.
-
-The planned AI layer will allow users to ask natural-language questions about
-that data.
-
-The project is intended to demonstrate:
-
-- Grounded AI answers
-- Natural-language querying
-- Retrieval or structured data access
-- Database integration
-- Source-aware responses
-- Protection against unsupported model claims
-
 ### Portfolio Digital Twin
 
 Kervintz is building an AI digital twin for his portfolio website.
