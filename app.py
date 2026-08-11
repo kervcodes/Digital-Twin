@@ -4,6 +4,7 @@ from tools import tools, handle_tool_calls
 from styles import CSS, EXAMPLES, FOCUS_JS, EMBED_JS
 from dotenv import load_dotenv
 import gradio as gr
+import spaces
 
 load_dotenv(override=True)
 
@@ -23,6 +24,7 @@ HERO_SUBTEXT = (
 INPUT_PLACEHOLDER = "Ask me anything about Kervintz's professional work"
 
 
+@spaces.GPU
 def respond(message, history):
     """Send a message through the twin's tool-calling loop.
 
