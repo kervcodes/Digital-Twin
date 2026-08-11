@@ -1,5 +1,11 @@
 """Styling constants for the digital twin Gradio app.
 
+Palette, type, and shape are lifted directly from the portfolio's own design
+system (portfolio-v2/src/index.css) so the twin reads as part of that site
+rather than an embedded third-party widget: B612 / B612 Mono, near-black ink
+on an off-white ground, a single amber "caution" accent, and sharp corners
+instead of rounded/glass chrome.
+
 The stylesheet below is scoped almost entirely to the elem_id/elem_classes
 values set explicitly on our own gr.Blocks layout (#app-shell and its
 descendants), not to Gradio's internal, version-specific DOM classes.
@@ -12,11 +18,11 @@ selectors were verified directly against the installed Gradio 6.20
 frontend bundle rather than guessed.
 """
 
-CHARCOAL = "#2a2d3a"
-CHARCOAL_MUTED = "#6b7086"
-GOLD = "#ecad0a"
-BLUE = "#4d8fc7"
-WHITE = "#ffffff"
+INK = "oklch(21% 0.012 255)"
+INK_MUTED = "oklch(43% 0.012 255)"
+GROUND = "oklch(96.8% 0.003 250)"
+SHEET = "oklch(99.4% 0.001 250)"
+CAUTION = "oklch(72% 0.155 72)"
 
 EXAMPLES = [
     "Tell me about your background and experience.",
@@ -25,36 +31,39 @@ EXAMPLES = [
 ]
 
 CSS = """
+@import url('https://fonts.googleapis.com/css2?family=B612:ital,wght@0,400;0,700;1,400;1,700&family=B612+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
 :root {
-  --twin-charcoal: #2a2d3a;
-  --twin-charcoal-muted: #6b7086;
-  --twin-gold: #ecad0a;
-  --twin-gold-soft: #ffcf4d;
-  --twin-blue: #4d8fc7;
-  --twin-page-bg: #eef0f4;
-  --twin-shell-bg: #fbfaf9;
-  --twin-card-bg: #ffffff;
-  --twin-border: #e4e2ec;
-  --twin-lavender: rgba(190, 175, 235, 0.32);
-  --twin-paleblue: rgba(170, 205, 235, 0.26);
+  --twin-ink: oklch(21% 0.012 255);
+  --twin-ink-muted: oklch(43% 0.012 255);
+  --twin-ink-faint: oklch(52% 0.010 255);
+  --twin-rule: oklch(87% 0.005 255);
+  --twin-rule-strong: oklch(21% 0.012 255);
+  --twin-ground: oklch(96.8% 0.003 250);
+  --twin-sheet: oklch(99.4% 0.001 250);
+  --twin-caution: oklch(72% 0.155 72);
+  --twin-caution-ink: oklch(38% 0.095 65);
+  --twin-radius: 0.125rem;
+  --twin-sans: 'B612', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --twin-mono: 'B612 Mono', ui-monospace, 'Courier New', monospace;
 }
 
 /* ---------- Page canvas ----------
    Gradio's own root wrapper (.gradio-container) sits *above* #app-shell in
-   the DOM, so painting the muted page background and centering the shell
+   the DOM, so painting the page background and centering the shell
    necessarily happens here rather than "inside" #app-shell. Nothing else
    about Gradio's internals is targeted by this rule. */
 html, body {
   margin: 0 !important;
-  background: var(--twin-page-bg) !important;
+  background: var(--twin-ground) !important;
 }
 .gradio-container {
-  background: var(--twin-page-bg) !important;
+  background: var(--twin-ground) !important;
   max-width: 100% !important;
   width: 100% !important;
   padding: 0 !important;
   min-height: 100vh !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-family: var(--twin-sans) !important;
   overflow-x: hidden !important;
 }
 /* Gradio's own inner wrapper caps content at 1536px and adds 32px side
@@ -89,51 +98,54 @@ footer, .built-with, .show-api, .api-docs { display: none !important; }
    what make these overrides actually win. The dark greys are also reached
    indirectly through --neutral-*, so those are remapped too. */
 body.dark {
-  --background-fill-primary: #fbfaf9 !important;
-  --background-fill-secondary: #fbfaf9 !important;
-  --block-background-fill: #ffffff !important;
-  --block-border-color: #e4e2ec !important;
-  --border-color-primary: #e4e2ec !important;
-  --border-color-accent: #4d8fc7 !important;
-  --border-color-accent-subdued: #4d8fc7 !important;
-  --body-background-fill: #eef0f4 !important;
-  --accordion-text-color: #2a2d3a !important;
-  --body-text-color: #2a2d3a !important;
-  --body-text-color-subdued: #6b7086 !important;
-  --block-label-background-fill: #ffffff !important;
-  --block-label-text-color: #2a2d3a !important;
-  --block-title-text-color: #2a2d3a !important;
-  --block-info-text-color: #6b7086 !important;
-  --link-text-color: #4d8fc7 !important;
-  --input-background-fill: #ffffff !important;
-  --button-secondary-background-fill: #ffffff !important;
-  --button-secondary-text-color: #2a2d3a !important;
-  --neutral-950: #ffffff !important;
-  --neutral-900: #fbfaf9 !important;
-  --neutral-800: #ffffff !important;
-  --neutral-700: #e4e2ec !important;
-  --neutral-600: #c9cbd8 !important;
+  --background-fill-primary: var(--twin-ground) !important;
+  --background-fill-secondary: var(--twin-ground) !important;
+  --block-background-fill: var(--twin-sheet) !important;
+  --block-border-color: var(--twin-rule) !important;
+  --border-color-primary: var(--twin-rule) !important;
+  --border-color-accent: var(--twin-caution) !important;
+  --border-color-accent-subdued: var(--twin-caution) !important;
+  --body-background-fill: var(--twin-ground) !important;
+  --accordion-text-color: var(--twin-ink) !important;
+  --body-text-color: var(--twin-ink) !important;
+  --body-text-color-subdued: var(--twin-ink-muted) !important;
+  --block-label-background-fill: var(--twin-sheet) !important;
+  --block-label-text-color: var(--twin-ink) !important;
+  --block-title-text-color: var(--twin-ink) !important;
+  --block-info-text-color: var(--twin-ink-muted) !important;
+  --link-text-color: var(--twin-caution-ink) !important;
+  --input-background-fill: var(--twin-sheet) !important;
+  --button-secondary-background-fill: var(--twin-sheet) !important;
+  --button-secondary-text-color: var(--twin-ink) !important;
+  --neutral-950: var(--twin-sheet) !important;
+  --neutral-900: var(--twin-ground) !important;
+  --neutral-800: var(--twin-sheet) !important;
+  --neutral-700: var(--twin-rule) !important;
+  --neutral-600: oklch(80% 0.005 255) !important;
   color-scheme: light;
 }
 
-/* ---------- Application shell ---------- */
+/* ---------- Application shell ----------
+   A flat sheet with a heavy top rule, echoing the portfolio's `.rule-head` +
+   `.sheet` idiom (case-study articles open the same way) rather than a
+   floating rounded card. */
 #app-shell {
   box-sizing: border-box;
   max-width: none;
   width: calc(100% - 48px);
   margin: 24px auto !important;
   min-height: calc(100vh - 48px);
-  border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 30px 80px -40px rgba(30, 20, 60, 0.22);
-  background:
-    radial-gradient(ellipse 720px 380px at 50% 100%, var(--twin-blue), transparent 70%),
-    # radial-gradient(ellipse 520px 300px at 82% 100%, var(--twin-paleblue), transparent 65%),
-    var(--twin-shell-bg);
+  border-radius: var(--twin-radius);
+  border: 1px solid var(--twin-rule);
+  border-top: 3px solid var(--twin-rule-strong);
+  box-shadow:
+    0 1px 1px color-mix(in srgb, var(--twin-ink) 4%, transparent),
+    0 6px 16px -8px color-mix(in srgb, var(--twin-ink) 14%, transparent);
+  background: var(--twin-sheet);
   overflow: hidden;
   display: flex !important;
   flex-direction: column !important;
-  color: var(--twin-charcoal);
+  color: var(--twin-ink);
 }
 #app-shell * { box-sizing: border-box; min-width: 0; }
 
@@ -143,34 +155,40 @@ body.dark {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 24px 32px !important;
+  padding: 20px 32px !important;
   gap: 16px;
+  border-bottom: 1px solid var(--twin-rule);
 }
-/* Single centred brand: monogram stacked above the name. */
+/* Single centred brand: a stamped square mark beside a placard-style name,
+   matching the mono uppercase micro-labels used across the portfolio. */
 #brand {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: fit-content;
   margin: 0 auto;
 }
 #brand-mark {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--twin-radius);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-family: var(--twin-mono);
   font-weight: 700;
-  font-size: 14px;
-  color: #ffffff;
-  background: linear-gradient(135deg, var(--twin-gold), var(--twin-blue));
+  font-size: 13px;
+  color: var(--twin-sheet);
+  background: var(--twin-ink);
 }
 #brand-name {
-  font-weight: 600;
-  font-size: 15px;
-  color: var(--twin-charcoal);
+  font-family: var(--twin-mono);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--twin-ink);
 }
 
 /* ---------- Content area (hero / prompts / chat) ---------- */
@@ -191,25 +209,29 @@ body.dark {
   max-width: 640px;
 }
 #hero-greeting {
-  margin: 0 0 60px 0;
-  font-size: 15px;
-  font-weight: 400;
-  color: var(--twin-charcoal-muted);
+  margin: 0 0 48px 0;
+  font-family: var(--twin-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--twin-ink-faint);
 }
 #hero-headline {
   margin: 0 0 30px 0;
+  font-family: var(--twin-sans);
   font-size: clamp(28px, 4vw, 40px);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.2;
-  color: var(--twin-charcoal);
+  color: var(--twin-ink);
 }
 #hero-subtext {
   margin: 0 auto;
   max-width: 500px;
+  font-family: var(--twin-sans);
   font-size: 15px;
   line-height: 1.65;
-  color: var(--twin-charcoal-muted);
+  color: var(--twin-ink-muted);
 }
 
 /* ---------- Quick prompts ---------- */
@@ -232,9 +254,9 @@ body.dark {
    on screen after the first message — re-assert the hidden state here. */
 #quick-prompts.hide { display: none !important; }
 .prompt-card {
-  background: rgba(255, 255, 255, 0.75) !important;
-  border: 1px solid var(--twin-border) !important;
-  border-radius: 16px !important;
+  background: var(--twin-sheet) !important;
+  border: 1px solid var(--twin-rule) !important;
+  border-radius: var(--twin-radius) !important;
   padding: 18px 20px !important;
   min-height: 96px !important;
   height: 100% !important;
@@ -245,29 +267,29 @@ body.dark {
   align-items: flex-start !important;
   gap: 10px !important;
   white-space: normal !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-family: var(--twin-sans) !important;
   font-size: 14px !important;
   font-weight: 400 !important;
   line-height: 1.5 !important;
-  color: var(--twin-charcoal-muted) !important;
+  color: var(--twin-ink-muted) !important;
   box-shadow: none !important;
-  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, transform 0.15s ease;
 }
-/* Decorative marker above the label, mirroring the reference layout. The
-   text lives in the button label so screen readers still read it normally. */
+/* A stamped caution square rather than a decorative diamond — amber stays
+   reserved for "actionable", the same meaning it carries site-wide. */
 .prompt-card::before {
-  content: '\\25C6';
-  font-size: 11px;
-  line-height: 1;
-  color: var(--twin-gold);
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  background: var(--twin-caution);
 }
 .prompt-card:hover {
-  border-color: var(--twin-blue) !important;
+  border-color: var(--twin-ink) !important;
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px -18px rgba(30, 20, 60, 0.35) !important;
 }
 .prompt-card:focus-visible {
-  outline: 2px solid var(--twin-blue) !important;
+  outline: 2px solid var(--twin-ink) !important;
   outline-offset: 2px;
 }
 
@@ -308,19 +330,19 @@ body.dark {
 #chat-window .message-row .message-content {
   border: 0 !important;
   box-shadow: none !important;
+  border-radius: var(--twin-radius) !important;
   padding: 11px 16px !important;
+  font-family: var(--twin-sans) !important;
   font-size: 14px !important;
   line-height: 1.6 !important;
 }
 #chat-window .message-row.user-row .message-content {
-  background: linear-gradient(135deg, var(--twin-blue), #3f7dc0) !important;
-  color: #ffffff !important;
-  border-radius: 16px 16px 4px 16px !important;
+  background: var(--twin-ink) !important;
+  color: var(--twin-sheet) !important;
 }
 #chat-window .message-row.bot-row .message-content {
-  background: var(--twin-card-bg) !important;
-  border: 1px solid var(--twin-border) !important;
-  border-radius: 16px 16px 16px 4px !important;
+  background: var(--twin-sheet) !important;
+  border: 1px solid var(--twin-rule) !important;
 }
 
 /* Typing indicator. The pending assistant turn renders an empty markdown
@@ -334,8 +356,8 @@ body.dark {
   height: 6px;
   margin: 5px 24px 5px 0;
   border-radius: 50%;
-  background: var(--twin-charcoal-muted);
-  box-shadow: 12px 0 var(--twin-charcoal-muted), 24px 0 var(--twin-charcoal-muted);
+  background: var(--twin-ink-muted);
+  box-shadow: 12px 0 var(--twin-ink-muted), 24px 0 var(--twin-ink-muted);
   animation: twin-typing 1.1s ease-in-out infinite;
 }
 @keyframes twin-typing {
@@ -348,11 +370,11 @@ body.dark {
    they keep the theme's own (near-white) text colour. */
 #chat-window .message-row.bot-row .message-content,
 #chat-window .message-row.bot-row .message-content * {
-  color: var(--twin-charcoal) !important;
+  color: var(--twin-ink) !important;
 }
 #chat-window .message-row.user-row .message-content,
 #chat-window .message-row.user-row .message-content * {
-  color: #ffffff !important;
+  color: var(--twin-sheet) !important;
 }
 
 #chat-window .message-row .message-content p { margin: 0 0 8px !important; }
@@ -364,11 +386,11 @@ body.dark {
 #chat-window .message-row .message-content h3,
 #chat-window .message-row .message-content h4 {
   font-size: 15px !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   margin: 14px 0 6px !important;
 }
 #chat-window .message-row.bot-row .message-content a {
-  color: var(--twin-blue) !important;
+  color: var(--twin-caution-ink) !important;
   text-decoration: underline;
 }
 
@@ -384,20 +406,19 @@ body.dark {
   width: calc(100% - 48px);
   margin: 20px auto 28px !important;
   padding: 6px 10px 6px 18px !important;
-  background: var(--twin-card-bg) !important;
-  border: 1px solid #ffffff !important;
-  border-radius: 999px !important;
-  box-shadow: 0 10px 30px -16px rgba(30, 20, 60, 0.25);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  background: var(--twin-sheet) !important;
+  border: 1px solid var(--twin-rule) !important;
+  border-radius: var(--twin-radius) !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease;
 }
 #message-composer:focus-within {
-  border-color: var(--twin-blue) !important;
-  box-shadow: 0 0 0 3px rgba(77, 143, 199, 0.16);
+  border-color: var(--twin-ink) !important;
 }
 /* Gradio wraps every component (including our plain gr.HTML icon and the
    Textbox) in a generically-themed ".block" element with its own border/
    background/padding. Scoped to the composer, strip that chrome so only
-   our pill (#message-composer itself) reads as the visible container. */
+   our bar (#message-composer itself) reads as the visible container. */
 #message-composer .block {
   border: 0 !important;
   background: transparent !important;
@@ -412,16 +433,18 @@ body.dark {
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
-  color: var(--twin-charcoal) !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  color: var(--twin-ink) !important;
+  font-family: var(--twin-sans) !important;
   font-size: 15px !important;
   padding: 10px 4px 10px 10px !important;
   min-height: 0 !important;
   resize: none !important;
 }
-#message-input textarea::placeholder { color: var(--twin-charcoal-muted) !important; }
+#message-input textarea::placeholder { color: var(--twin-ink-faint) !important; }
 #message-input textarea:focus { outline: none !important; box-shadow: none !important; }
 
+/* A stamped key rather than a soft gradient pill — hovering tints it toward
+   caution, the same colour the site reserves for an armed/actionable state. */
 #send-button {
   flex: 0 0 40px !important;
   width: 40px !important;
@@ -429,32 +452,35 @@ body.dark {
   min-height: 0 !important;
   padding: 0 !important;
   border: 0 !important;
-  border-radius: 50% !important;
-  background: linear-gradient(135deg, var(--twin-gold), var(--twin-gold-soft)) !important;
-  color: var(--twin-charcoal) !important;
+  border-radius: var(--twin-radius) !important;
+  background: var(--twin-ink) !important;
+  color: var(--twin-sheet) !important;
   font-size: 0 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   box-shadow: none !important;
   cursor: pointer;
-  transition: filter 0.15s ease, transform 0.15s ease;
+  transition: background-color 0.15s ease;
 }
 #send-button::after {
   content: '\\2192';
+  font-family: var(--twin-mono);
   font-size: 16px;
   line-height: 1;
 }
-#send-button:hover { filter: brightness(1.06); transform: translateY(-1px); }
+#send-button:hover {
+  background: color-mix(in srgb, var(--twin-ink) 85%, var(--twin-caution)) !important;
+}
 #send-button:focus-visible {
-  outline: 2px solid var(--twin-blue) !important;
+  outline: 2px solid var(--twin-caution) !important;
   outline-offset: 2px;
 }
 
 /* ---------- Focus states (non-color cue: visible outline everywhere) ---------- */
 #app-shell button:focus-visible,
 #app-shell textarea:focus-visible {
-  outline: 2px solid var(--twin-blue);
+  outline: 2px solid var(--twin-ink);
   outline-offset: 2px;
 }
 
@@ -472,18 +498,16 @@ body.dark {
   #quick-prompts { grid-template-columns: 1fr !important; }
 }
 @media (max-width: 640px) {
-  #app-shell { width: calc(100% - 24px); margin: 12px auto !important; border-radius: 20px; }
+  #app-shell { width: calc(100% - 24px); margin: 12px auto !important; }
   #topbar { padding: 18px 20px !important; }
   #content-area { padding: 0 16px; }
   #hero-headline { font-size: 26px !important; }
   /* Match #content-area's 16px side padding so the composer stays flush
      with the prompt cards above it. The placeholder can't fit on one line
-     at this width, so let the pill grow to two lines rather than clipping
-     it, and soften the radius so it still reads as intentional. */
+     at this width, so let the bar grow to two lines rather than clipping it. */
   #message-composer {
     width: calc(100% - 32px);
     padding: 8px 8px 8px 14px !important;
-    border-radius: 24px !important;
   }
   #message-input textarea {
     font-size: 14px !important;
