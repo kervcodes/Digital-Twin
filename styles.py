@@ -523,3 +523,25 @@ FOCUS_JS = """
   if (el) el.focus();
 }
 """
+
+# Runs once on page load (wired via demo.load(js=...) in app.py). The
+# portfolio's /twin route iframes this app below its own navbar, so when
+# ?embedded=1 is present, drop the twin's own brand bar and the heavy top
+# rule that echoed it — direct (non-embedded) visits keep both.
+#
+# This sets inline styles via JS rather than a stylesheet rule targeting
+# body.twin-embedded: Gradio's own `#topbar { display: flex !important }`
+# rule kept winning that cascade despite lower specificity, most likely
+# because Gradio injects its layout CSS into a shadow root that a
+# document-level stylesheet's `body ...` selector can't reach into.
+# An inline style set directly on the element sidesteps that entirely.
+EMBED_JS = """
+() => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('embedded') !== '1') return;
+  const topbar = document.querySelector('#topbar');
+  if (topbar) topbar.style.setProperty('display', 'none', 'important');
+  const shell = document.querySelector('#app-shell');
+  if (shell) shell.style.setProperty('border-top', '1px solid var(--twin-rule)', 'important');
+}
+"""

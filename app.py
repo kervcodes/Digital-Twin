@@ -1,7 +1,7 @@
 from openai import OpenAI
 from context import TWIN_SYSTEM_PROMPT
 from tools import tools, handle_tool_calls
-from styles import CSS, EXAMPLES, FOCUS_JS
+from styles import CSS, EXAMPLES, FOCUS_JS, EMBED_JS
 from dotenv import load_dotenv
 import gradio as gr
 
@@ -135,6 +135,8 @@ with gr.Blocks(title=BRAND_NAME) as demo:
         card.click(lambda t=prompt_text: t, None, msg_input).then(
             respond, inputs=[msg_input, chatbot], outputs=outputs
         ).then(lambda: None, None, None, js=FOCUS_JS)
+
+    demo.load(None, None, None, js=EMBED_JS)
 
 demo.queue()
 
