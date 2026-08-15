@@ -38,7 +38,6 @@ CSS = """
   --twin-ink-muted: oklch(43% 0.012 255);
   --twin-ink-faint: oklch(52% 0.010 255);
   --twin-rule: oklch(87% 0.005 255);
-  --twin-rule-strong: oklch(21% 0.012 255);
   --twin-ground: oklch(96.8% 0.003 250);
   --twin-sheet: oklch(99.4% 0.001 250);
   --twin-caution: oklch(72% 0.155 72);
@@ -55,6 +54,7 @@ CSS = """
    about Gradio's internals is targeted by this rule. */
 html, body {
   margin: 0 !important;
+  padding: 0 !important;
   background: var(--twin-ground) !important;
 }
 .gradio-container {
@@ -126,9 +126,7 @@ body.dark {
 }
 
 /* ---------- Application shell ----------
-   A flat sheet with a heavy top rule, echoing the portfolio's `.rule-head` +
-   `.sheet` idiom (case-study articles open the same way) rather than a
-   floating rounded card. */
+   A flat sheet rather than a floating rounded card. */
 #app-shell {
   box-sizing: border-box;
   max-width: none;
@@ -137,7 +135,6 @@ body.dark {
   min-height: calc(100vh - 48px);
   border-radius: var(--twin-radius);
   border: 1px solid var(--twin-rule);
-  border-top: 3px solid var(--twin-rule-strong);
   box-shadow:
     0 1px 1px color-mix(in srgb, var(--twin-ink) 4%, transparent),
     0 6px 16px -8px color-mix(in srgb, var(--twin-ink) 14%, transparent);
@@ -148,48 +145,6 @@ body.dark {
   color: var(--twin-ink);
 }
 #app-shell * { box-sizing: border-box; min-width: 0; }
-
-/* ---------- Topbar ---------- */
-#topbar {
-  flex: 0 0 auto !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 20px 32px !important;
-  gap: 16px;
-  border-bottom: 1px solid var(--twin-rule);
-}
-/* Single centred brand: a stamped square mark beside a placard-style name,
-   matching the mono uppercase micro-labels used across the portfolio. */
-#brand {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  width: fit-content;
-  margin: 0 auto;
-}
-#brand-mark {
-  width: 26px;
-  height: 26px;
-  border-radius: var(--twin-radius);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--twin-mono);
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--twin-sheet);
-  background: var(--twin-ink);
-}
-#brand-name {
-  font-family: var(--twin-mono);
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--twin-ink);
-}
 
 /* ---------- Content area (hero / prompts / chat) ---------- */
 #content-area {
@@ -493,13 +448,37 @@ body.dark {
   #app-shell, #app-shell * { animation: none !important; transition: none !important; }
 }
 
+/* ---------- Embedded mode (?embedded=1, iframed by the portfolio's /twin
+   route) ----------
+   Outside embedding, #app-shell is deliberately styled as a floating card
+   inset from the viewport: a 24px auto margin (12px on mobile), its own
+   border/radius/shadow, and #content-area's 24px side padding keeps prose
+   off the card's edges. Iframed, that card chrome reads as a stray
+   border/inset around the twin's content instead of a component of the
+   host page's own layout, so all of it collapses to zero here and the
+   shell fills the iframe edge-to-edge on every side. This selector's
+   specificity (element + class + id) outranks the plain `#app-shell` /
+   `#content-area` id selectors above regardless of the max-width media
+   query order, so it wins even at the mobile breakpoint below. */
+body.twin-embedded {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+body.twin-embedded #app-shell {
+  width: 100% !important;
+  margin: 0 !important;
+  min-height: 100vh !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
   #quick-prompts { grid-template-columns: 1fr !important; }
 }
 @media (max-width: 640px) {
   #app-shell { width: calc(100% - 24px); margin: 12px auto !important; }
-  #topbar { padding: 18px 20px !important; }
   #content-area { padding: 0 16px; }
   #hero-headline { font-size: 26px !important; }
   /* Match #content-area's 16px side padding so the composer stays flush
@@ -526,22 +505,14 @@ FOCUS_JS = """
 
 # Runs once on page load (wired via demo.load(js=...) in app.py). The
 # portfolio's /twin route iframes this app below its own navbar, so when
-# ?embedded=1 is present, drop the twin's own brand bar and the heavy top
-# rule that echoed it — direct (non-embedded) visits keep both.
-#
-# This sets inline styles via JS rather than a stylesheet rule targeting
-# body.twin-embedded: Gradio's own `#topbar { display: flex !important }`
-# rule kept winning that cascade despite lower specificity, most likely
-# because Gradio injects its layout CSS into a shadow root that a
-# document-level stylesheet's `body ...` selector can't reach into.
-# An inline style set directly on the element sidesteps that entirely.
+# ?embedded=1 is present, add the `twin-embedded` class to <body> so the
+# CSS above (see "Embedded mode") collapses #app-shell's card margin/
+# border/shadow to sit flush with the iframe on every side. Direct
+# (non-embedded) visits keep the card chrome.
 EMBED_JS = """
 () => {
   const params = new URLSearchParams(window.location.search);
   if (params.get('embedded') !== '1') return;
-  const topbar = document.querySelector('#topbar');
-  if (topbar) topbar.style.setProperty('display', 'none', 'important');
-  const shell = document.querySelector('#app-shell');
-  if (shell) shell.style.setProperty('border-top', '1px solid var(--twin-rule)', 'important');
+  document.body.classList.add('twin-embedded');
 }
 """

@@ -80,12 +80,6 @@ def respond(message, history):
 
 with gr.Blocks(title=BRAND_NAME) as demo:
     with gr.Column(elem_id="app-shell"):
-        with gr.Row(elem_id="topbar"):
-            gr.HTML(
-                f'<div id="brand"><span id="brand-mark" aria-hidden="true">K</span>'
-                f'<span id="brand-name">{BRAND_NAME}</span></div>'
-            )
-
         with gr.Column(elem_id="content-area"):
             with gr.Column(elem_id="hero-section") as hero_section:
                 gr.HTML(
