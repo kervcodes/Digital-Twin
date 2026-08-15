@@ -51,10 +51,22 @@ CSS = """
    Gradio's own root wrapper (.gradio-container) sits *above* #app-shell in
    the DOM, so painting the page background and centering the shell
    necessarily happens here rather than "inside" #app-shell. Nothing else
-   about Gradio's internals is targeted by this rule. */
+   about Gradio's internals is targeted by this rule.
+
+   The shell (#app-shell, below) and its #content-area are designed as a
+   single fixed-viewport pane with their own overflow: hidden — the
+   conversation scrolls inside #chat-window, not the page. Without an
+   explicit height (as opposed to min-height) at every level of this
+   chain, a browser's rounding of 100vh against its own chrome could let
+   the shell grow a few pixels taller than the viewport, giving the
+   document its own scrollbar alongside the chat window's — a visible
+   "double scrollbar". Pinning html/body/.gradio-container to an exact
+   height with overflow: hidden closes that gap. */
 html, body {
   margin: 0 !important;
   padding: 0 !important;
+  height: 100%;
+  overflow: hidden !important;
   background: var(--twin-ground) !important;
 }
 .gradio-container {
@@ -62,9 +74,9 @@ html, body {
   max-width: 100% !important;
   width: 100% !important;
   padding: 0 !important;
-  min-height: 100vh !important;
+  height: 100vh !important;
   font-family: var(--twin-sans) !important;
-  overflow-x: hidden !important;
+  overflow: hidden !important;
 }
 /* Gradio's own inner wrapper caps content at 1536px and adds 32px side
    padding, which stopped the shell from filling wide screens. */
@@ -132,7 +144,7 @@ body.dark {
   max-width: none;
   width: calc(100% - 48px);
   margin: 24px auto !important;
-  min-height: calc(100vh - 48px);
+  height: calc(100vh - 48px);
   border-radius: var(--twin-radius);
   border: 1px solid var(--twin-rule);
   box-shadow:
@@ -467,7 +479,7 @@ body.twin-embedded {
 body.twin-embedded #app-shell {
   width: 100% !important;
   margin: 0 !important;
-  min-height: 100vh !important;
+  height: 100vh !important;
   border: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
@@ -478,7 +490,7 @@ body.twin-embedded #app-shell {
   #quick-prompts { grid-template-columns: 1fr !important; }
 }
 @media (max-width: 640px) {
-  #app-shell { width: calc(100% - 24px); margin: 12px auto !important; }
+  #app-shell { width: calc(100% - 24px); margin: 12px auto !important; height: calc(100vh - 24px); }
   #content-area { padding: 0 16px; }
   #hero-headline { font-size: 26px !important; }
   /* Match #content-area's 16px side padding so the composer stays flush
