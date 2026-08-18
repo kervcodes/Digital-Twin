@@ -86,6 +86,16 @@ The application is configured for deployment as a Gradio application on Hugging 
 
 It can also be embedded into another website using an iframe. Adding `?embedded=1` to the application URL enables the embedded layout and removes the standalone page styling.
 
+### CI/CD
+
+A GitHub Actions workflow (`.github/workflows/update_space.yml`) deploys the
+app automatically on every push to `main`. It checks out the repo, strips
+`.github`, commits the remaining files to an orphan `space-deploy` branch,
+and force-pushes that branch to the Hugging Face Space
+(`Kervcodes/kerv-digital-twin`) as a squashed snapshot — no `gradio deploy`
+step is involved. The workflow authenticates with an `HF_TOKEN` repository
+secret that must have write access to the Space.
+
 ## Project Structure
 
 ```text
