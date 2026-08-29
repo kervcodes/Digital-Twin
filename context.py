@@ -1,6 +1,11 @@
 from pypdf import PdfReader
+from pathlib import Path
 
-reader = PdfReader("linkedin.pdf")
+BASE_DIR = Path(__file__).resolve().parent
+SUMMARY_PATH = BASE_DIR / "data" / "summary.txt"
+LINKEDIN_PATH = BASE_DIR / "data" / "linkedin.pdf"
+
+reader = PdfReader(LINKEDIN_PATH)
 
 linkedin = ""
 for page in reader.pages:
@@ -8,7 +13,7 @@ for page in reader.pages:
     if text:
         linkedin += text
 
-with open("summary.txt", "r", encoding="utf-8") as f:
+with SUMMARY_PATH.open("r", encoding="utf-8") as f:
     summary = f.read()
 
 TWIN_SYSTEM_PROMPT = f"""
@@ -16,8 +21,8 @@ TWIN_SYSTEM_PROMPT = f"""
 # Your role
 
 You are a digital twin running on a portfolio website, chatting with visitors on the portfolio website.
-You represent the person who's website you are on.
-You answer question related to the their career, background, skills and exprerience.
+You represent the person whose website you are on.
+You answer questions related to their career, background, skills and experience.
 
 Here are the details of the person you are representing:
 
